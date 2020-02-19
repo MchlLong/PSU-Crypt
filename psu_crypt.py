@@ -12,14 +12,14 @@ def _encrypt_block(data, key):
     # Encrypt
     print(int.to_bytes(data, 8, "big").hex())
     # Whiten the input
-    # Divide key into four streams
-    r = _split(data)
-    k = _split(key)
 
-    print(r)
-    print(k)
+    wrd_split = _split(data)    # r based on the definition of the document
+    key_split = _split(key)     # k0 based on the definition of the document 
+
+    print(wrd_split)
+    print(key_split)
     for i in range(4):
-        print(int.to_bytes(r[i] ^ k[i], 8, "big").hex())
+        print(int.to_bytes(wrd_split[i] ^ key_split[i], 8, "big").hex())
     print(int.to_bytes(data ^ key, 8, "big").hex())
     # Pass through 16 rounds of the F function
 
@@ -33,8 +33,29 @@ def _decrypt_block(data, key):
     # Decrypt
     pass
 
-def _feistel():
+def _f_function():
     # Apply F-box 
+    pass
+
+def _g_function(word, key, round):
+    # Apply G-box
+    g = [0] * 6
+    g[0] = (word >> 8) & 0xFF
+    g[1] = word & 0xFF
+    unroll = g[1]^key[4*round]
+    left = (unroll >> 4) & 0xF
+    right = (unroll) & 0xF
+    print(int.to_bytes(left, 4, "big").hex())
+    print(int.to_bytes(right, 4, "big").hex())
+    print(int.to_bytes(f_table[left * 16 + right], 4, "big").hex())
+    print(int.to_bytes(g[1]^key[4*round], 4, "big").hex())
+    #g[2] = f_table[g[1]^key[4*round]]
+    g[3] = 'd'
+    g[4] = 'e'
+    g[5] = 'f'
+    #print(int.to_bytes(g[0], 4, "big").hex())
+    #print(int.to_bytes(g[1], 4, "big").hex())
+
     pass
 
 def _keystream(key, key_length, direction):
@@ -77,8 +98,7 @@ def _keystream(key, key_length, direction):
 
         # Update loop control variables and ret value
         add = temp_key_truncate & 0xFF                   # Truncate excess bits to keep the subkeys 32 bits
-        ret.append(add)
-        # ret.append(int.to_bytes(add, 1, "big").hex())    # Add to return list, represent in hex format for debuggin
+        ret.append(add)                                  # Add to return list
         counter_truncate = (counter_truncate + 1) % 4    # Increase the amount of shifts needed to reach next key block
         counter_side_swap = (counter_side_swap + 1) % 24 # Increase the amount of checks before swapping halves
 
@@ -108,9 +128,10 @@ def _bit_rotate(key, key_len, dir):
     return (reg|overflow)
 
 def _split(arg):
+
     ret = []
-    ret.append((arg >> 48) & 0xFFFF)
-    ret.append((arg >> 32) & 0xFFFF)
-    ret.append((arg >> 16) & 0xFFFF)
-    ret.append((arg >> 0) & 0xFFFF)
+    ret.append((arg >> 48) & 0xFFFF)    # Grab first four hex values
+    ret.append((arg >> 32) & 0xFFFF)    # Grab second four hex values
+    ret.append((arg >> 16) & 0xFFFF)    # Grab third four hex values
+    ret.append((arg >>  0) & 0xFFFF)    # Grab fourth four hex values
     return ret

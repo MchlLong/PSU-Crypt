@@ -11,10 +11,12 @@ def main():
     key_len = 64
     #print(f'Key Before Stream: {int.to_bytes(test_key, 8, "big").hex()}')
     ret = psu_crypt._keystream(test_key, key_len, 0)
-    print(psu_crypt._encrypt_block(test_plain, test_key))
+    psu_crypt._g_function(0xabcd, ret, 0)
+
+    #print(psu_crypt._encrypt_block(test_plain, test_key))
     #print(ret)
-    print('-  - - - - -  -')
-    print(psu_crypt.f_table)
+    #print('-  - - - - -  -')
+    #print(psu_crypt.f_table)
     pass
 
 if __name__ == '__main__':
