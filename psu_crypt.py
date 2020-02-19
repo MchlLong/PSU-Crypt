@@ -3,6 +3,7 @@
 # Project #1: Implementing "PSU-CRYPT"
 # PSU-CRYPT
 
+from binascii import hexlify
 # Constants
 LEFT = 0
 RIGHT = 1
@@ -27,9 +28,75 @@ f_table = [
 0x08,0x77,0x11,0xbe,0x92,0x4f,0x24,0xc5,0x32,0x36,0x9d,0xcf,0xf3,0xa6,0xbb,0xac,
 0x5e,0x6c,0xa9,0x13,0x57,0x25,0xb5,0xe3,0xbd,0xa8,0x3a,0x01,0x05,0x59,0x2a,0x46]
 
+def encrypt(data, key):
+    """
+    Function to encrypt some 'plain text', and output some 'cipher text'. Designed to
+    use the 'PSU-CRYPT' algorithm
+        Arguments:
+            data (str): some data to run through the encryption algorithm
+            key  (int): a secret value to generate the subkeys to encrypt with
+        Returns:
+            ret   ([int]): list of cipher blocks
+            pad_amt (int): amount of F's appended to the end to make it fit into 64 bit  blocks
+    """
+
+    # Calculate the pad amount
+    pad_amt = 64 - len(data) % 64
+
+    # Pad F's to end to make sure the length will fit into 64 bit block sizes
+    for i in range(pad_amt):
+        data = data + 'F'
+    to_encrypt = []
+    ret = []
+    # Convert into blocks that can be encrypted
+    for i in range(len(data) // 8):
+        temp = data[i*8:(i+1)*8]
+        temp = temp.encode('utf-8')
+        temp = int.from_bytes(temp, "big")
+        to_encrypt.append(temp)
+
+    # Encrypt the blocks
+    for j in range(len(to_encrypt)):
+        ret.append(_encrypt_block(to_encrypt[j], key))
+
+        
+    # Print the encrypted message, then return it and the amount of padding added
+    print(ret)
+    return ret, pad_amt
+
+def decrypt(data, key, pad_amt):
+    """
+    Function to decrypt some 'cipher text', and output the corresponding 'plain text'. Designed to
+    use the 'PSU-CRYPT' algorithm
+        Arguments:
+            data (str): some 'cipher text' that will be decrypted with the key
+            key  (int): secret value to generate subkeys to decrypt with
+        Returns:
+            ret  (str): returns the decrypted message
+    """
+
+    # Define empty lists
+    ret = []
+    plain = []
+
+    # Decrypt each block in the list
+    for i in range(len(data)):
+        ret.append(int.to_bytes(_decrypt_block(data[i], key), length=8, byteorder='big'))
+
+    # Decode and append to the return
+    #for k in ret:
+        #plain.append(k.decode('utf-8'))
+    print(ret)
+    # Join back into one string
+    ret = ''.join(plain)
+
+    return ret[:-pad_amt]
+
+
+
 def _encrypt_block(data, key):
     """
-    Function to encrypt a 64 bit block, and output some 'cipher text'
+    Function to encrypt a 64 bit block, and output some 'cipher block'
         Arguments:
             data (int): the 'plain text' as an integer to encrypt into 'cipher text'
             key  (int): the key to generate the 'key table' with
@@ -236,18 +303,18 @@ def _keystream(key, key_len = 64):
         # First twelve keys are on right half of keyspace (0 ~ 11)
         if (counter_side_swap < 12):
             # Drop right most two hex values
-            for j in range(counter_truncate):
-                for k in range(8):
+            for j in range(counter_truncate):   # Number of remaining times to truncate
+                for k in range(8):              # Do eight rotations to get to next subkey
                     temp_key_truncate = (_bit_rotate(temp_key_truncate, 64, RIGHT))
 
         # Remaining twelve keys on the left half of the keyspace (12 ~ 23)
         else:
-            # Shift over to drop right half of hex
-            for l in range(32):
-                temp_key_truncate = (_bit_rotate(temp_key_truncate, 64, RIGHT))
+            # Shift over to drop right half of hex and begin working with left hex
+            for j in range(32):
+                temp_key_truncate = (_bit_rotate(temp_key_truncate, 64, RIGHT)) # Do 32 rotations to get to initial state of subkeys
             # Drop right most two hex values
-            for j in range(counter_truncate):
-                for k in range(8):
+            for k in range(counter_truncate):   # Number of remaining times to truncate
+                for l in range(8):              # Do eight rotations to get to next subkey
                     temp_key_truncate = (_bit_rotate(temp_key_truncate, 64, RIGHT))
         
 
