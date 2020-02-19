@@ -3,7 +3,6 @@
 # Project #1: Implementing "PSU-CRYPT"
 # PSU-CRYPT
 
-from binascii import hexlify
 # Constants
 LEFT = 0
 RIGHT = 1
@@ -59,9 +58,7 @@ def encrypt(data, key):
     for j in range(len(to_encrypt)):
         ret.append(_encrypt_block(to_encrypt[j], key))
 
-        
     # Print the encrypted message, then return it and the amount of padding added
-    print(ret)
     return ret, pad_amt
 
 def decrypt(data, key, pad_amt):
@@ -77,18 +74,13 @@ def decrypt(data, key, pad_amt):
 
     # Define empty lists
     ret = []
-    plain = []
 
     # Decrypt each block in the list
     for i in range(len(data)):
-        ret.append(int.to_bytes(_decrypt_block(data[i], key), length=8, byteorder='big'))
+        temp = int.to_bytes(_decrypt_block(data[i], key), length=8, byteorder='big')
+        ret.append(temp.decode('utf-8'))
 
-    # Decode and append to the return
-    #for k in ret:
-        #plain.append(k.decode('utf-8'))
-    print(ret)
-    # Join back into one string
-    ret = ''.join(plain)
+    ret = ''.join(ret)
 
     return ret[:-pad_amt]
 
