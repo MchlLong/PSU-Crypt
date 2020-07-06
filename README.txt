@@ -1,6 +1,4 @@
-README
-
-Foreword: This is a demonstration of implementing an encryption algorithm and is has not been vetted by the Cryptographic Community at large, this should not be used in an application without additiona vetting and testing. 
+Foreword: This is a demonstration of implementing an encryption algorithm and has not been vetted by the Cryptographic Community at large, this has been made for learning purposes, and not to be used in any application.
 
 1) Michael Long, michael.long.code@gmail.com
 2) This is my implementation of "PSU-CRYPTO" for CS485 Project 1. It is a cipher which can encrypt and decrypt 64 bit blocks. Currently has some issues with decoding ASCII characters from their hex representation. 
