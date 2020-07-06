@@ -1,5 +1,8 @@
 README
-1) Michael Long, michlong@pdx.edu
+
+Foreword: This is a demonstration of implementing an encryption algorithm and is has not been vetted by the Cryptographic Community at large, this should not be used in an application without additiona vetting and testing. 
+
+1) Michael Long, michael.long.code@gmail.com
 2) This is my implementation of "PSU-CRYPTO" for CS485 Project 1. It is a cipher which can encrypt and decrypt 64 bit blocks. Currently has some issues with decoding ASCII characters from their hex representation. 
 3) Build with: 
 Compile with python3 main.py <key> <cypher key> <cypher pad amount> <plain text input> <cypher text input> <plain text output> <cipher text output> 
